@@ -3,12 +3,14 @@ use crate::header::{Class, Identifier, Length, PC};
 use crate::intenc::Integer8Bit;
 use crate::objects::*;
 
+/// ASN.1 DER Reader on slice
 #[derive(Clone)]
 pub struct Reader<'a> {
     index: usize,
     slice: &'a [u8],
 }
 
+/// DER ASN.1 Error when reading data
 #[derive(Debug, Clone)]
 pub enum Error {
     ExpectedCType { expected: PC, got: PC },
@@ -111,12 +113,14 @@ impl<'a> Reader<'a> {
     }
     */
 
+    /// Get the next Tag / Length / Value triple, whichever it is
     pub fn anything(&mut self) -> Result<(Identifier, Length, &'a [u8]), Error> {
         let (identifier, length) = self.next()?;
         let slice = self.subslice(length)?;
         Ok((identifier, length, slice))
     }
 
+    /// Get the next boolean from the stream
     pub fn bool(&mut self) -> Result<bool, Error> {
         let len = self.next_assume(PC::Primitive, constants::TAG_BOOLEAN)?;
         let sub = self.subslice(len)?;
@@ -131,6 +135,7 @@ impl<'a> Reader<'a> {
         }
     }
 
+    /// Get the next integer from the stream
     pub fn integer(&mut self) -> Result<&'a Integer, Error> {
         let len = self.next_assume(PC::Primitive, constants::TAG_INTEGER)?;
         let sub = self.subslice(len)?;
@@ -138,6 +143,7 @@ impl<'a> Reader<'a> {
         Ok(Integer::from_inner_slice(i8))
     }
 
+    /// Get the next enumerated from the stream
     pub fn enumerated(&mut self) -> Result<&'a Enumerated, Error> {
         let len = self.next_assume(PC::Primitive, constants::TAG_ENUMERATED)?;
         let sub = self.subslice(len)?;
@@ -145,6 +151,7 @@ impl<'a> Reader<'a> {
         Ok(Enumerated::from_inner_slice(i8))
     }
 
+    /// Get the next bitstring from the stream
     pub fn bitstring(&mut self) -> Result<&'a BitString, Error> {
         let len = self.next_assume(PC::Primitive, constants::TAG_BIT_STRING)?;
         let sub = self.subslice(len)?;
@@ -168,18 +175,21 @@ impl<'a> Reader<'a> {
         Ok(BitString::from_raw_slice(sub))
     }
 
+    /// Get the next octetstring from the stream
     pub fn octetstring(&mut self) -> Result<&'a [u8], Error> {
         let len = self.next_assume(PC::Primitive, constants::TAG_OCTET_STRING)?;
         let sub = self.subslice(len)?;
         Ok(sub)
     }
 
+    /// Get the next utf8 string from the stream
     pub fn utf8_string(&mut self) -> Result<&'a str, Error> {
         let len = self.next_assume(PC::Primitive, constants::TAG_OCTET_STRING)?;
         let sub = self.subslice(len)?;
         core::str::from_utf8(sub).map_err(|_| Error::Utf8Invalid)
     }
 
+    /// Get the next null from the stream
     pub fn null(&mut self) -> Result<(), Error> {
         let len = self.next_assume(PC::Primitive, constants::TAG_NULL)?;
         let sub = self.subslice(len)?;
@@ -189,17 +199,20 @@ impl<'a> Reader<'a> {
         Ok(())
     }
 
+    /// Get the next OID from the stream
     pub fn oid(&mut self) -> Result<&'a OID, Error> {
         let len = self.next_assume(PC::Primitive, constants::TAG_OID)?;
         let sub = self.subslice(len)?;
         OID::parse_from_slice(sub).map_err(|_| Error::OIDInvalid)
     }
 
+    /// Get the next sequence from the stream as a Reader
     pub fn sequence(&mut self) -> Result<Reader<'a>, Error> {
         let len = self.next_assume(PC::Constructed, constants::TAG_SEQUENCE)?;
         self.subslice_reader(len)
     }
 
+    /// Get the next set from the stream as a Set iterator
     pub fn set<A, F>(&mut self, f: F) -> Result<Set<'a, F>, Error>
     where
         F: Fn(Reader<'a>) -> Result<A, Error>,
@@ -209,6 +222,9 @@ impl<'a> Reader<'a> {
         Ok(Set(subreader, f))
     }
 
+    /// Check is the stream is done
+    ///
+    /// If the reader is not finished, then the Error::ReaderNotTerminated is returned
     pub fn done(&self) -> Result<(), Error> {
         if self.index == self.slice.len() {
             Ok(())
@@ -220,10 +236,12 @@ impl<'a> Reader<'a> {
         }
     }
 
+    /// Get the position of the reader in the slice
     pub fn current_position(&self) -> usize {
         self.index
     }
 
+    /// Get the remaining buffer as a slice
     pub fn remaining(&self) -> &'a [u8] {
         &self.slice[self.index..]
     }
@@ -246,7 +264,6 @@ mod tests {
     pub fn decode_key() {
         let key_bs = b"\x30\x59\x30\x13\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01\x06\x08\x2A\x86\x48\xCE\x3D\x03\x01\x07\x03\x42\x00\x04\xA4\x39\xEC\xD3\xCE\xAD\xFD\xDB\x8E\x50\x34\xFD\x99\x72\x45\x8C\xDC\xEB\xA9\xD3\x4E\x09\xF3\x47\x31\x4A\x48\x6C\x3C\x4E\x3C\x00\x43\x3A\x1C\x0A\x6D\xBE\xE2\xEF\x6D\x00\x8A\x10\xC9\xE3\xBE\x0F\x07\xD3\x31\x8E\x77\x44\x20\x14\xE6\x63\xC2\xAF\x19\x14\x8B\xAC";
         let mut reader = Reader::new(key_bs);
-        //println!("key_bs: {}", key_bs.len());
         let mut out_sequence = reader.sequence().expect("outer sequence");
         let mut inner_sequence = out_sequence.sequence().expect("inner sequence");
 

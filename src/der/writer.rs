@@ -1,11 +1,13 @@
 use crate::header::*;
 use crate::objects::*;
 
+/// ASN.1 DER Writer to a mutable buffer
 pub struct Writer<'a> {
     index: usize,
     buf: &'a mut [u8],
 }
 
+/// ASN.1 DER Writer Error
 #[derive(Debug, Clone)]
 pub enum Error {
     BufferTooSmall(usize),

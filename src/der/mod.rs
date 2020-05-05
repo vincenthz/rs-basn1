@@ -6,8 +6,8 @@
 //! This is the usual format of cryptographic material, although in few
 //! cases, some cryptographic material need to use BER relaxed rules for
 //! reading as their encoding wasn't done strictly.
-mod reader;
-mod writer;
+pub mod reader;
+pub mod writer;
 
 pub use self::{reader::Reader, writer::Writer};
 
