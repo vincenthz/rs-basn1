@@ -65,10 +65,21 @@ type_reslice!(Enumerated, Integer8Bit);
 type_slice_integer_method!(Enumerated);
 
 impl BitString {
+    /// Return the total number of bits of the bitstring
     pub fn bits(&self) -> usize {
         let bits_unused = self.0[0];
         let bits = (self.0.len() - 1) * 8;
         bits - (bits_unused as usize)
+    }
+
+    /// Return the total number of unused bits on the bitstring
+    pub fn bits_unused(&self) -> usize {
+        self.0[0] as usize
+    }
+
+    /// Get the data associated with the bitstring as full bytes
+    pub fn data_bytes(&self) -> &[u8] {
+        &self.0[1..]
     }
 }
 
