@@ -39,6 +39,6 @@ mod tests {
         seqreader.done().expect("outer done");
         let ostring2 = inreader.octetstring().expect("octetstring");
         inreader.done().expect("inner done");
-        assert_eq!(ostring2.as_ref(), &ostring[..]);
+        assert_eq!(ostring2, &ostring[..]);
     }
 }

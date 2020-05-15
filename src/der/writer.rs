@@ -115,7 +115,7 @@ impl<'a> Writer<'a> {
     }
 
     /// Write a sequence to the DER writer
-    pub fn sequence<'b, F>(&mut self, f: F) -> Result<(), Error>
+    pub fn sequence<F>(&mut self, f: F) -> Result<(), Error>
     where
         F: Fn(&mut Self) -> Result<(), Error>,
     {

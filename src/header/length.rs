@@ -23,10 +23,10 @@ pub enum LengthDecodeError {
 }
 
 impl Length {
-    pub fn value(&self) -> Option<u32> {
+    pub fn value(self) -> Option<u32> {
         match self {
-            Length::Short(sz) => Some(*sz as u32),
-            Length::Long { nb_bytes: _, value } => Some(*value),
+            Length::Short(sz) => Some(sz as u32),
+            Length::Long { nb_bytes: _, value } => Some(value),
             Length::Indefinite => None,
         }
     }
@@ -45,15 +45,15 @@ impl Length {
         }
     }
 
-    pub fn size_bytes(&self) -> usize {
+    pub fn size_bytes(self) -> usize {
         match self {
             Length::Indefinite => 1,
             Length::Short(_) => 1,
-            Length::Long { nb_bytes, value: _ } => 1 + *nb_bytes as usize,
+            Length::Long { nb_bytes, value: _ } => 1 + nb_bytes as usize,
         }
     }
 
-    pub fn encode(&self, out: &mut [u8]) {
+    pub fn encode(self, out: &mut [u8]) {
         put_length(self, out)
     }
 
@@ -102,12 +102,12 @@ fn get_length(slice: &[u8]) -> Result<(Length, usize), LengthDecodeError> {
     }
 }
 
-fn put_length(len: &Length, out: &mut [u8]) {
+fn put_length(len: Length, out: &mut [u8]) {
     match len {
         Length::Indefinite => out[0] = 0x80,
         Length::Short(v) => {
-            assert!(*v < 0x80);
-            out[0] = *v;
+            assert!(v < 0x80);
+            out[0] = v;
         }
         Length::Long {
             mut nb_bytes,
@@ -139,7 +139,7 @@ mod tests {
     use super::*;
     use alloc::string::String;
 
-    fn decode_encode(len: &Length) -> Result<Length, String> {
+    fn decode_encode(len: Length) -> Result<Length, String> {
         let mut buf = [0u8; 32];
         //let sz = len.encode(&mut buf);
         let sz = len.size_bytes();
@@ -163,11 +163,29 @@ mod tests {
     #[test]
     fn decode_encode_length() {
         for v in &[
-            1usize, 10, 32, 43, 46, 56, 80, 88, 92, 102, 140, 200, 340, 359, 469, 699, 999, 1001,
-            1394, 2149214, 241421421,
+            1usize,
+            10,
+            32,
+            46,
+            56,
+            80,
+            88,
+            92,
+            102,
+            140,
+            200,
+            340,
+            359,
+            469,
+            699,
+            999,
+            1001,
+            1394,
+            214_9214,
+            2_4144_1421,
         ] {
             let length = Length::new_smallest(*v);
-            let new_length = decode_encode(&length).unwrap();
+            let new_length = decode_encode(length).unwrap();
             assert_eq!(new_length, length)
         }
     }

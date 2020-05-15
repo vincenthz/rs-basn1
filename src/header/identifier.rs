@@ -25,10 +25,10 @@ pub enum TagEncoded {
 }
 
 impl TagEncoded {
-    pub fn value(&self) -> u32 {
+    pub fn value(self) -> u32 {
         match self {
-            TagEncoded::Short(u) => *u as u32,
-            TagEncoded::Long(l) => *l,
+            TagEncoded::Short(u) => u as u32,
+            TagEncoded::Long(l) => l,
         }
     }
 
@@ -111,7 +111,7 @@ pub struct OutputBufferTooSmall;
 
 impl Identifier {
     pub fn decode(slice: &[u8]) -> Result<(Self, usize), DecodeError> {
-        if slice.len() == 0 {
+        if slice.is_empty() {
             return Err(DecodeError::EmptyHeader);
         }
 

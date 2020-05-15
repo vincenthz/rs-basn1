@@ -14,7 +14,7 @@ macro_rules! to_primitive7 {
         /// Try to convert to the primitive
         ///
         /// If there's an overflown then nothing is returned
-        pub fn $name<'a>(&'a self) -> Option<$type> {
+        pub fn $name(&self) -> Option<$type> {
             // this function assume that the data has been checked properly
             // so that the first byte is not a long zero,
             // and that the continuation bit are correctly set
@@ -34,12 +34,12 @@ impl IntegerContBit7 {
     /// transform a raw slice into a IntegerContBit7 slice,
     /// no verification is done by this call
     /// one should use parse_from_slice for safe parsing+verification
-    pub(crate) fn unverified_from_slice<'a>(slice: &'a [u8]) -> &'a Self {
+    pub(crate) fn unverified_from_slice(slice: &[u8]) -> &Self {
         cast_slice_u8_to_typed_slice!(slice, Self)
     }
 
     /// Try to parse from a slice
-    pub fn parse_from_slice<'a>(slice: &'a [u8]) -> Result<(&'a Self, usize), ()> {
+    pub fn parse_from_slice(slice: &[u8]) -> Result<(&Self, usize), ()> {
         if slice.is_empty() {
             return Err(());
         }
@@ -85,7 +85,7 @@ macro_rules! to_primitive8 {
         /// Try to convert to the primitive
         ///
         /// If there's an overflown then nothing is returned
-        pub fn $name<'a>(&'a self) -> Option<$type> {
+        pub fn $name(&self) -> Option<$type> {
             // this function assume that the data has been checked properly
             // so that the first byte is not a long zero,
             // and that the continuation bit are correctly set
@@ -102,12 +102,12 @@ macro_rules! to_primitive8 {
 impl Integer8Bit {
     /// transform a raw slice into a Integer8Bit slice,
     /// no verification is done by this call
-    pub(crate) fn unverified_from_slice<'a>(slice: &'a [u8]) -> &'a Self {
+    pub(crate) fn unverified_from_slice(slice: &[u8]) -> &Self {
         cast_slice_u8_to_typed_slice!(slice, Self)
     }
 
     /// Try to parse from a slice
-    pub fn from_slice<'a>(slice: &'a [u8]) -> Result<&'a Self, ()> {
+    pub fn from_slice(slice: &[u8]) -> Result<&Self, ()> {
         if slice.is_empty() || slice[0] == 0 {
             return Err(());
         }

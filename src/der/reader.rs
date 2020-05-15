@@ -257,7 +257,7 @@ mod tests {
         let mut reader = Reader::new(&b"\x04\x08\x01\x23\x45\x67\x89\xab\xcd\xef"[..]);
         let octets = reader.octetstring().expect("octetstring");
 
-        assert_eq!(octets.as_ref(), &b"\x01\x23\x45\x67\x89\xab\xcd\xef"[..]);
+        assert_eq!(octets, &b"\x01\x23\x45\x67\x89\xab\xcd\xef"[..]);
     }
 
     #[test]

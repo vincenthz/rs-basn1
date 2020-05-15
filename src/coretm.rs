@@ -64,7 +64,7 @@ macro_rules! method_reslice_cast {
     ($name: ident, $slice: ident) => {
         impl $name {
             /// unsafe method only available from internal module
-            pub(crate) fn from_inner_slice<'a>(slice: &'a $slice) -> &'a $name {
+            pub(crate) fn from_inner_slice(slice: &$slice) -> &$name {
                 unsafe { &*(slice as *const $slice as *const $name) }
             }
         }

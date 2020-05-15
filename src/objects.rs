@@ -12,7 +12,7 @@ macro_rules! typed_vec_and_slice {
 
         impl $slice {
             /// unsafe method only available from internal module
-            pub(crate) fn from_raw_slice<'a>(slice: &'a [u8]) -> &'a $slice {
+            pub(crate) fn from_raw_slice(slice: &[u8]) -> &$slice {
                 cast_slice_u8_to_typed_slice!(slice, $slice)
             }
         }
@@ -106,7 +106,7 @@ impl OID {
         }
     }
 
-    pub fn parse_from_slice<'a>(slice: &'a [u8]) -> Result<&'a Self, ()> {
+    pub fn parse_from_slice(slice: &[u8]) -> Result<&Self, ()> {
         if slice.is_empty() {
             return Err(());
         }
@@ -142,7 +142,7 @@ impl<'a> Iterator for OIDComponents<'a> {
                 Err(_) => unreachable!(),
                 Ok((r, adv)) => {
                     self.index += adv;
-                    return Some(OIDComponent::from_inner_slice(r));
+                    Some(OIDComponent::from_inner_slice(r))
                 }
             }
         }
