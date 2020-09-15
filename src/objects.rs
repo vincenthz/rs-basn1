@@ -148,3 +148,9 @@ impl<'a> Iterator for OIDComponents<'a> {
         }
     }
 }
+
+impl Integer {
+    pub fn from_slice(slice: &[u8]) -> Result<&Self, ()> {
+        Integer8Bit::from_slice(slice).map(|u| Self::from_inner_slice(u))
+    }
+}
