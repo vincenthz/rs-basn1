@@ -1,4 +1,4 @@
-//! Distinguised Encoding Rules (DER) Reader and Writer
+//! Distinguished Encoding Rules (DER) Reader and Writer
 //!
 //! This encoding enforces one canonical representation of the encoding,
 //! where the efficiency is biased towards the reader.
